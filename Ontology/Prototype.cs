@@ -118,14 +118,22 @@ namespace Ontology
 
 		private void InvalidateCacheParents()
 		{
-			if (null != m_lstCachedParents)
+			var stack = new Stack<Prototype>();
+			var visited = new HashSet<Prototype>();
+			stack.Push(this);
+
+			while (stack.Count > 0)
 			{
-				m_lstCachedParents = null;
-			}
-			
-			foreach (Prototype protoDescendant in GetDescendants())
-			{
-				protoDescendant.InvalidateCacheParents();
+				Prototype current = stack.Pop();
+				if (!visited.Add(current))
+					continue;
+
+				current.m_lstCachedParents = null;
+
+				foreach (Prototype protoDescendant in current.GetDescendants())
+				{
+					stack.Push(protoDescendant);
+				}
 			}
 		}
 
@@ -168,6 +176,9 @@ namespace Ontology
 			if (m_bIsCopy && !m_bIsMutable)
 				throw new InvalidOperationException("Cannot insert type of on a copy of a prototype.");
 
+			if (this.PrototypeID == iParentPrototypeID)
+				throw new InvalidOperationException("A prototype cannot be a type-of itself.");
+
 			if (!this.TypeOfsCollection.Contains(iParentPrototypeID))
 			{
 				this.TypeOfsCollection.Add(iParentPrototypeID);
@@ -186,6 +197,9 @@ namespace Ontology
 		{
 			if (m_bIsCopy)
 				throw new Exception("Cannot insert type of on a copy of a prototype.");
+
+			if (this.PrototypeID == iParentPrototypeID)
+				throw new InvalidOperationException("A prototype cannot be a type-of itself.");
 
 			RemoveTypeOf(iParentPrototypeID); // remove any existing type of first
 
@@ -233,8 +247,9 @@ namespace Ontology
 			{
 				if (Prototypes.TypeOf(list[i], protoPath))
 				{
+					int parentId = list[i];
 					list.RemoveAt(i);
-					Prototypes.GetPrototype(list[i]).DescendantsCollection.Remove(this.PrototypeID);
+					Prototypes.GetPrototype(parentId).DescendantsCollection.Remove(this.PrototypeID);
 
 					modified = true;
 				}

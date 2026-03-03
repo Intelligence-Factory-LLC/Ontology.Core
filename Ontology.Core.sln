@@ -15,6 +15,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scripts", "Scripts", "{A6DD
 		Scripts\update_dlls.bat = Scripts\update_dlls.bat
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ontology.Tests", "Ontology.Tests\Ontology.Tests.csproj", "{F1472D8E-4F2E-4F94-AD09-3C95108FFBF7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -61,6 +63,18 @@ Global
 		{09FE2BD4-658F-4677-9AA7-F1E87C665519}.Release|x64.Build.0 = Release|Any CPU
 		{09FE2BD4-658F-4677-9AA7-F1E87C665519}.Release|x86.ActiveCfg = Release|Any CPU
 		{09FE2BD4-658F-4677-9AA7-F1E87C665519}.Release|x86.Build.0 = Release|Any CPU
+		{F1472D8E-4F2E-4F94-AD09-3C95108FFBF7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F1472D8E-4F2E-4F94-AD09-3C95108FFBF7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F1472D8E-4F2E-4F94-AD09-3C95108FFBF7}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{F1472D8E-4F2E-4F94-AD09-3C95108FFBF7}.Debug|x64.Build.0 = Debug|Any CPU
+		{F1472D8E-4F2E-4F94-AD09-3C95108FFBF7}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F1472D8E-4F2E-4F94-AD09-3C95108FFBF7}.Debug|x86.Build.0 = Debug|Any CPU
+		{F1472D8E-4F2E-4F94-AD09-3C95108FFBF7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F1472D8E-4F2E-4F94-AD09-3C95108FFBF7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F1472D8E-4F2E-4F94-AD09-3C95108FFBF7}.Release|x64.ActiveCfg = Release|Any CPU
+		{F1472D8E-4F2E-4F94-AD09-3C95108FFBF7}.Release|x64.Build.0 = Release|Any CPU
+		{F1472D8E-4F2E-4F94-AD09-3C95108FFBF7}.Release|x86.ActiveCfg = Release|Any CPU
+		{F1472D8E-4F2E-4F94-AD09-3C95108FFBF7}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
