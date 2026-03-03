@@ -1,4 +1,4 @@
-﻿namespace Ontology
+namespace Ontology
 {
 	public class Hidden
 	{
@@ -15,7 +15,7 @@
 				}
 			}
 
-			private static AsyncLocal<Prototype> m_Prototype = new AsyncLocal<Prototype>();
+			private static ResettablePrototypeAsyncLocal m_Prototype = new ResettablePrototypeAsyncLocal();
 			public static Prototype Prototype
 			{
 				get

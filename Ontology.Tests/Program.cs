@@ -1,4 +1,7 @@
 using Ontology;
+using Ontology.BaseTypes;
+using System.Reflection;
+using System.Threading;
 
 internal static class Program
 {
@@ -12,6 +15,8 @@ internal static class Program
 			(nameof(InsertTypeOf_RejectsSelfEdge), InsertTypeOf_RejectsSelfEdge),
 			(nameof(RemoveTypeOfAndDescendants_RemovesLastMatchWithoutIndexError), RemoveTypeOfAndDescendants_RemovesLastMatchWithoutIndexError),
 			(nameof(RemoveTypeOfAndDescendants_RemovesCorrectDescendantEdges), RemoveTypeOfAndDescendants_RemovesCorrectDescendantEdges),
+			(nameof(ResetCache_ClearsPrototypeSingletonSlots), ResetCache_ClearsPrototypeSingletonSlots),
+			(nameof(Audit_NoRawAsyncLocalPrototypeFields_InOntologyAssembly), Audit_NoRawAsyncLocalPrototypeFields_InOntologyAssembly),
 		};
 
 		int failed = 0;
@@ -104,6 +109,44 @@ internal static class Program
 		AssertTrue(!p1.GetDescendants().Any(d => d.PrototypeID == child.PrototypeID), "Expected p1 descendant edge to be removed.");
 		AssertTrue(!p2.GetDescendants().Any(d => d.PrototypeID == child.PrototypeID), "Expected p2 descendant edge to be removed.");
 		AssertTrue(unrelated.GetDescendants().Any(d => d.PrototypeID == child.PrototypeID), "Expected unrelated descendant edge to remain.");
+	}
+
+	private static void ResetCache_ClearsPrototypeSingletonSlots()
+	{
+		Initializer.ResetCache();
+
+		Prototype stringBefore = System_String.Prototype;
+		stringBefore.Value = 42;
+
+		Initializer.ResetCache();
+
+		Prototype stringAfter = System_String.Prototype;
+
+		AssertTrue(!ReferenceEquals(stringBefore, stringAfter), "Expected System_String prototype slot to be reset.");
+		AssertTrue(stringAfter.Value == 1, "Expected System_String prototype to be recreated after reset.");
+	}
+
+	private static void Audit_NoRawAsyncLocalPrototypeFields_InOntologyAssembly()
+	{
+		Type bannedType = typeof(AsyncLocal<Prototype>);
+		Assembly[] assemblies = new[] { typeof(Prototype).Assembly };
+		var offenders = new List<string>();
+
+		foreach (Assembly assembly in assemblies.Distinct())
+		{
+			foreach (Type type in assembly.GetTypes())
+			{
+				foreach (FieldInfo field in type.GetFields(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic))
+				{
+					if (field.FieldType == bannedType)
+					{
+						offenders.Add(type.FullName + "." + field.Name);
+					}
+				}
+			}
+		}
+
+		AssertTrue(offenders.Count == 0, "Found raw AsyncLocal<Prototype> fields: " + string.Join(", ", offenders));
 	}
 
 	private static void AssertTrue(bool condition, string message)

@@ -1,4 +1,4 @@
-﻿namespace Ontology.BaseTypes
+namespace Ontology.BaseTypes
 {
 	public class System_Int32
 	{
@@ -6,7 +6,7 @@
 
 		public static int PrototypeID => Prototype.PrototypeID;
 
-		private static readonly AsyncLocal<Prototype> s_prototype = new();
+		private static readonly ResettablePrototypeAsyncLocal s_prototype = new();
 
 		public static Prototype Prototype
 		{
@@ -26,7 +26,7 @@
 
 		public static int PrototypeID => Prototype.PrototypeID;
 
-		private static readonly AsyncLocal<Prototype> s_prototype = new();
+		private static readonly ResettablePrototypeAsyncLocal s_prototype = new();
 
 		public static Prototype Prototype
 		{
@@ -46,7 +46,7 @@
 
 		public static int PrototypeID => Prototype.PrototypeID;
 
-		private static readonly AsyncLocal<Prototype> s_prototype = new();
+		private static readonly ResettablePrototypeAsyncLocal s_prototype = new();
 
 		public static Prototype Prototype
 		{
@@ -66,7 +66,7 @@
 
 		public static int PrototypeID => Prototype.PrototypeID;
 
-		private static readonly AsyncLocal<Prototype> s_prototype = new();
+		private static readonly ResettablePrototypeAsyncLocal s_prototype = new();
 
 		public static Prototype Prototype
 		{
