@@ -20,5 +20,13 @@ namespace Ontology
 			TemporaryLexemes.m_mapRelatedParentPrototypes.Clear();
 			TemporaryPrototypes.ResetCache();
 		}
+
+		static public void ReloadCache()
+		{
+			// Canonical session-switch entrypoint.
+			// Reload prototype caches and invalidate cached singleton prototype handles.
+			ResettablePrototypeAsyncLocal.ResetAll();
+			TemporaryPrototypes.ReloadCache();
+		}
 	}
 }
