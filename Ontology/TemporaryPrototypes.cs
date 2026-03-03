@@ -40,7 +40,9 @@ namespace Ontology
 		}
 
 		// ── utility ───────────────────────────────────────────────────────────────
-		public static void ResetCache()
+		// Internal on purpose: cache resets must flow through Initializer.ResetCache()
+		// so prototype singleton slots and lexeme caches are reset together.
+		internal static void ResetCache()
 		{
 			// clear only if the slot already has a cache
 			ObjectCacheManager.Instance.GetOrCreateCache(nameof(TemporaryPrototypes)).Clear();

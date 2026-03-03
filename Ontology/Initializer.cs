@@ -14,6 +14,7 @@ namespace Ontology
 
 		static public void ResetCache()
 		{
+			// Canonical global reset entrypoint.
 			ResettablePrototypeAsyncLocal.ResetAll();
 			TemporaryLexemes.Cache.Clear();
 			TemporaryLexemes.m_mapRelatedParentPrototypes.Clear();
