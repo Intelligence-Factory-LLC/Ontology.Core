@@ -54,7 +54,9 @@ namespace Ontology
 		}
 
 
-		public static void ReloadCache()
+		// Internal on purpose: session reloads should flow through Initializer.ReloadCache()
+		// so prototype singleton slots are invalidated before cache handles are rebound.
+		internal static void ReloadCache()
 		{
 			//This does not clear the cache, but loads the local copy from the 
 			//cache managers again. This is useful after we load a session
