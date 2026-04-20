@@ -15,8 +15,15 @@ namespace Ontology.Simulation
 
 		public IntWrapper(Prototype prototype)
 		{
+			if (prototype is IntWrapper iw)
+			{
+				this.Prototype = iw.Prototype;
+				PopulateClone(this, this.Prototype);
+				return;
+			}
+
 			if (!Prototypes.TypeOf(prototype, System_Int32.Prototype))
-				throw new Exception("Cannot create a bool from prototype: " + prototype.PrototypeName);
+				throw new Exception("Cannot create an int from prototype: " + prototype.PrototypeName);
 
 			if (prototype is not NativeValuePrototype nvp)
 				throw new Exception("Prototype must be of type NativeValuePrototype.");

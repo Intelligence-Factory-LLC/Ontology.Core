@@ -15,6 +15,13 @@ namespace Ontology.Simulation
 
 		public BoolWrapper(Prototype prototype)
 		{
+			if (prototype is BoolWrapper bw)
+			{
+				this.Prototype = bw.Prototype;
+				PopulateClone(this, this.Prototype);
+				return;
+			}
+
 			if (!Prototypes.TypeOf(prototype, System_Boolean.Prototype))
 				throw new Exception("Cannot create a bool from prototype: " + prototype.PrototypeName);
 
