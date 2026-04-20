@@ -1,5 +1,6 @@
 using Ontology;
 using Ontology.BaseTypes;
+using Ontology.Simulation;
 using System.Reflection;
 using System.Threading;
 
@@ -17,6 +18,9 @@ internal static class Program
 			(nameof(RemoveTypeOfAndDescendants_RemovesCorrectDescendantEdges), RemoveTypeOfAndDescendants_RemovesCorrectDescendantEdges),
 			(nameof(ResetCache_ClearsPrototypeSingletonSlots), ResetCache_ClearsPrototypeSingletonSlots),
 			(nameof(Audit_NoRawAsyncLocalPrototypeFields_InOntologyAssembly), Audit_NoRawAsyncLocalPrototypeFields_InOntologyAssembly),
+			(nameof(IntWrapperCtor_AcceptsIntWrapperPrototype), IntWrapperCtor_AcceptsIntWrapperPrototype),
+			(nameof(BoolWrapperCtor_AcceptsBoolWrapperPrototype), BoolWrapperCtor_AcceptsBoolWrapperPrototype),
+			(nameof(DoubleWrapperCtor_AcceptsDoubleWrapperPrototype), DoubleWrapperCtor_AcceptsDoubleWrapperPrototype),
 		};
 
 		int failed = 0;
@@ -147,6 +151,36 @@ internal static class Program
 		}
 
 		AssertTrue(offenders.Count == 0, "Found raw AsyncLocal<Prototype> fields: " + string.Join(", ", offenders));
+	}
+
+	private static void IntWrapperCtor_AcceptsIntWrapperPrototype()
+	{
+		Initializer.ResetCache();
+
+		IntWrapper original = new IntWrapper(123);
+		IntWrapper clone = new IntWrapper((Prototype)original);
+
+		AssertTrue(clone.GetIntValue() == 123, "Expected IntWrapper(Prototype) to accept IntWrapper input and preserve value.");
+	}
+
+	private static void BoolWrapperCtor_AcceptsBoolWrapperPrototype()
+	{
+		Initializer.ResetCache();
+
+		BoolWrapper original = new BoolWrapper(true);
+		BoolWrapper clone = new BoolWrapper((Prototype)original);
+
+		AssertTrue(clone.GetBoolValue(), "Expected BoolWrapper(Prototype) to accept BoolWrapper input and preserve value.");
+	}
+
+	private static void DoubleWrapperCtor_AcceptsDoubleWrapperPrototype()
+	{
+		Initializer.ResetCache();
+
+		DoubleWrapper original = new DoubleWrapper(3.5);
+		DoubleWrapper clone = new DoubleWrapper((Prototype)original);
+
+		AssertTrue(clone.GetDoubleValue() == 3.5d, "Expected DoubleWrapper(Prototype) to accept DoubleWrapper input and preserve value.");
 	}
 
 	private static void AssertTrue(bool condition, string message)

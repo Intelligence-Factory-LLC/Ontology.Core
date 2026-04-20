@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Ontology\Ontology.csproj" />
+    <ProjectReference Include="..\Ontology.Simulation\Ontology.Simulation.csproj" />
   </ItemGroup>
 
   <ItemGroup>
