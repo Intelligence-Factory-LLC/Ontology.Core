@@ -21,6 +21,8 @@ internal static class Program
 			(nameof(IntWrapperCtor_AcceptsIntWrapperPrototype), IntWrapperCtor_AcceptsIntWrapperPrototype),
 			(nameof(BoolWrapperCtor_AcceptsBoolWrapperPrototype), BoolWrapperCtor_AcceptsBoolWrapperPrototype),
 			(nameof(DoubleWrapperCtor_AcceptsDoubleWrapperPrototype), DoubleWrapperCtor_AcceptsDoubleWrapperPrototype),
+			(nameof(NestedParent_TracksDirectDottedParent), NestedParent_TracksDirectDottedParent),
+			(nameof(NestedParent_TracksDirectDottedParent_WhenParentCreatedAfterChild), NestedParent_TracksDirectDottedParent_WhenParentCreatedAfterChild),
 		};
 
 		int failed = 0;
@@ -181,6 +183,48 @@ internal static class Program
 		DoubleWrapper clone = new DoubleWrapper((Prototype)original);
 
 		AssertTrue(clone.GetDoubleValue() == 3.5d, "Expected DoubleWrapper(Prototype) to accept DoubleWrapper input and preserve value.");
+	}
+
+	private static void NestedParent_TracksDirectDottedParent()
+	{
+		Initializer.ResetCache();
+
+		Prototype parent = Prototypes.GetOrInsertPrototype("test.nested.parent");
+		Prototype child = Prototypes.GetOrInsertPrototype("test.nested.parent.child");
+
+		Prototype? nestedParent = GetNestedParent(child);
+		AssertTrue(nestedParent != null, "Expected child prototype to expose a direct NestedParent.");
+		AssertTrue(nestedParent.PrototypeID == parent.PrototypeID, "Expected NestedParent to resolve the direct dotted parent prototype.");
+		AssertTrue(GetNestedChildren(parent).Any(x => x.PrototypeID == child.PrototypeID), "Expected parent prototype to expose the child through GetNestedChildren().");
+	}
+
+	private static void NestedParent_TracksDirectDottedParent_WhenParentCreatedAfterChild()
+	{
+		Initializer.ResetCache();
+
+		Prototype child = Prototypes.GetOrInsertPrototype("test.outoforder.parent.child");
+		Prototype parent = Prototypes.GetOrInsertPrototype("test.outoforder.parent");
+
+		Prototype? nestedParent = GetNestedParent(child);
+		AssertTrue(nestedParent != null, "Expected child prototype to pick up NestedParent after the direct dotted parent is created.");
+		AssertTrue(nestedParent.PrototypeID == parent.PrototypeID, "Expected NestedParent to resolve the later-created direct dotted parent prototype.");
+		AssertTrue(GetNestedChildren(parent).Any(x => x.PrototypeID == child.PrototypeID), "Expected later-created parent prototype to expose the pre-existing child through GetNestedChildren().");
+	}
+
+	private static Prototype? GetNestedParent(Prototype prototype)
+	{
+		PropertyInfo? property = typeof(Prototype).GetProperty("NestedParent", BindingFlags.Instance | BindingFlags.Public);
+		AssertTrue(property != null, "Expected Prototype to expose a public NestedParent property.");
+		return property.GetValue(prototype) as Prototype;
+	}
+
+	private static List<Prototype> GetNestedChildren(Prototype prototype)
+	{
+		MethodInfo? method = typeof(Prototype).GetMethod("GetNestedChildren", BindingFlags.Instance | BindingFlags.Public);
+		AssertTrue(method != null, "Expected Prototype to expose a public GetNestedChildren() method.");
+		object? value = method.Invoke(prototype, Array.Empty<object>());
+		AssertTrue(value is IEnumerable<Prototype>, "Expected GetNestedChildren() to return IEnumerable<Prototype>.");
+		return ((IEnumerable<Prototype>)value).ToList();
 	}
 
 	private static void AssertTrue(bool condition, string message)

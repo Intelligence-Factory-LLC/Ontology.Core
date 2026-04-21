@@ -1,4 +1,4 @@
-﻿using BasicUtilities;
+using BasicUtilities;
 using BasicUtilities.Collections;
 using System.Runtime.Serialization;
 
@@ -21,6 +21,21 @@ namespace Ontology
 			get
 			{
 				return m_protoParent;
+			}
+		}
+
+		private int m_iNestedParentPrototypeID = 0;
+
+		[IgnoreDataMemberAttribute]
+		public Prototype? NestedParent
+		{
+			get
+			{
+				Prototype prototype = (m_bIsMutable ? this : Prototypes.GetPrototype(this.PrototypeID));
+				if (prototype.m_iNestedParentPrototypeID == 0)
+					return null;
+
+				return Prototypes.GetPrototype(prototype.m_iNestedParentPrototypeID);
 			}
 		}
 
@@ -266,6 +281,41 @@ namespace Ontology
 			return TypeOfsCollection;
 		}
 
+		public virtual Prototype InsertNestedParent(Prototype protoParent)
+		{
+			return InsertNestedParent(protoParent.PrototypeID);
+		}
+		public virtual Prototype InsertNestedParent(int iNestedParentPrototypeID)
+		{
+			if (m_bIsCopy && !m_bIsMutable)
+				throw new InvalidOperationException("Cannot insert nested parent on a copy of a prototype.");
+
+			if (this.PrototypeID == iNestedParentPrototypeID)
+				throw new InvalidOperationException("A prototype cannot be nested under itself.");
+
+			if (m_iNestedParentPrototypeID == iNestedParentPrototypeID)
+				return this;
+
+			if (m_iNestedParentPrototypeID != 0)
+				Prototypes.GetPrototype(m_iNestedParentPrototypeID).NestedChildrenCollection.Remove(this.PrototypeID);
+
+			m_iNestedParentPrototypeID = iNestedParentPrototypeID;
+			if (m_iNestedParentPrototypeID != 0)
+				Prototypes.GetPrototype(m_iNestedParentPrototypeID).NestedChildrenCollection.Add(this.PrototypeID);
+
+			return this;
+		}
+		public virtual Prototype RemoveNestedParent()
+		{
+			if (m_iNestedParentPrototypeID == 0)
+				return this;
+
+			Prototypes.GetPrototype(m_iNestedParentPrototypeID).NestedChildrenCollection.Remove(this.PrototypeID);
+			m_iNestedParentPrototypeID = 0;
+
+			return this;
+		}
+
 
 
 		public virtual bool ShallowEqual(Prototype rhs)
@@ -444,10 +494,30 @@ namespace Ontology
 			}
 		}
 
+		private HashSet<int>? m_setNestedChildren = null;
+		protected HashSet<int> NestedChildrenCollection
+		{
+			get
+			{
+				if (m_setNestedChildren == null)
+				{
+					m_setNestedChildren = new HashSet<int>();
+				}
+				return m_setNestedChildren;
+			}
+		}
+
 
 		public virtual IEnumerable<Prototype> GetDescendants()
 		{
 			foreach (int id in DescendantsCollection)
+				yield return Prototypes.GetPrototype(id);
+		}
+
+		public virtual IEnumerable<Prototype> GetNestedChildren()
+		{
+			Prototype prototype = (m_bIsMutable ? this : Prototypes.GetPrototype(this.PrototypeID));
+			foreach (int id in prototype.NestedChildrenCollection)
 				yield return Prototypes.GetPrototype(id);
 		}
 

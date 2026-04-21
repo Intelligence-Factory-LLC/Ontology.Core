@@ -1,4 +1,4 @@
-﻿using RooTrax.Cache;
+using RooTrax.Cache;
 
 namespace Ontology
 {
@@ -114,6 +114,7 @@ namespace Ontology
 
 			Cache.Insert(prototype, prototype.PrototypeName);
 			IndexById(prototype);
+			WireNestedPrototype(prototype);
 
 			return prototype.PrototypeID;
 		}
@@ -178,6 +179,63 @@ namespace Ontology
 				throw new Exception("Prototype does not exist: " + iPrototypeID);
 
 			return prototype;
+		}
+
+		private static void WireNestedPrototype(Prototype prototype)
+		{
+			if (prototype == null)
+				throw new ArgumentNullException(nameof(prototype));
+			if (prototype.PrototypeID == 0)
+				return;
+			if (string.IsNullOrWhiteSpace(prototype.PrototypeName))
+				return;
+
+			prototype.RemoveNestedParent();
+
+			Prototype? directNestedParent = GetDirectNestedParentOrNull(prototype.PrototypeName);
+			if (directNestedParent != null)
+				prototype.InsertNestedParent(directNestedParent.PrototypeID);
+
+			foreach (Prototype candidate in GetAllTemporaryPrototypes())
+			{
+				if (candidate.PrototypeID == prototype.PrototypeID)
+					continue;
+				if (!HasDirectNestedParentPrototypeName(candidate.PrototypeName, prototype.PrototypeName))
+					continue;
+
+				candidate.InsertNestedParent(prototype.PrototypeID);
+			}
+		}
+
+		private static Prototype? GetDirectNestedParentOrNull(string prototypeName)
+		{
+			if (string.IsNullOrWhiteSpace(prototypeName))
+				return null;
+			if (prototypeName.Contains('#'))
+				return null;
+
+			int lastDotIndex = prototypeName.LastIndexOf('.');
+			if (lastDotIndex <= 0)
+				return null;
+
+			string directParentPrototypeName = prototypeName.Substring(0, lastDotIndex);
+			return GetTemporaryPrototypeOrNull(directParentPrototypeName);
+		}
+
+		private static bool HasDirectNestedParentPrototypeName(string prototypeName, string directParentPrototypeName)
+		{
+			if (string.IsNullOrWhiteSpace(prototypeName)
+				|| string.IsNullOrWhiteSpace(directParentPrototypeName))
+			{
+				return false;
+			}
+			if (prototypeName.Contains('#'))
+				return false;
+			if (!prototypeName.StartsWith(directParentPrototypeName + ".", StringComparison.Ordinal))
+				return false;
+
+			int childLeafStartIndex = directParentPrototypeName.Length + 1;
+			return prototypeName.IndexOf('.', childLeafStartIndex) < 0;
 		}
 	}
 }
